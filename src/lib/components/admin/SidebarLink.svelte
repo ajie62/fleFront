@@ -6,12 +6,14 @@
 
 <a
   href={href}
-  class="px-3 py-2 rounded transition-colors duration-200 flex items-center gap-2
-    {currentPath.startsWith(href)
-      ? 'bg-gray-900 text-white font-semibold'
-      : 'hover:bg-gray-700 text-gray-300'}"
-  aria-current={currentPath.startsWith(href) ? 'page' : undefined}
+  class="px-3 py-2 rounded transition-colors duration-200
+    {href === '/admin'
+      ? currentPath === '/admin'
+        ? 'bg-gray-900 text-white font-semibold'
+        : 'hover:bg-gray-700 text-gray-300'
+      : currentPath.startsWith(href)
+        ? 'bg-gray-900 text-white font-semibold'
+        : 'hover:bg-gray-700 text-gray-300'}"
 >
-  <slot />
-  <span>{label}</span>
+  {label}
 </a>
