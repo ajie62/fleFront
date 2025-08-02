@@ -2,9 +2,15 @@ import devtoolsJson from 'vite-plugin-devtools-json';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+    define: {
+        'import.meta.env.PUBLIC_API_URL': JSON.stringify(process.env.PUBLIC_API_URL)
+    },
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

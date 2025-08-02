@@ -1,19 +1,4 @@
-import { readable } from 'svelte/store';
-import { browser } from '$app/environment';
+import { writable } from 'svelte/store';
 
-export const pagePath = readable('/', (set) => {
-  if (!browser) return;
-
-  const update = () => set(window.location.pathname);
-  update();
-
-  window.addEventListener('popstate', update);
-  window.addEventListener('pushstate', update);
-  window.addEventListener('replacestate', update);
-
-  return () => {
-    window.removeEventListener('popstate', update);
-    window.removeEventListener('pushstate', update);
-    window.removeEventListener('replacestate', update);
-  };
-});
+// Ce store contient le chemin de l'URL courante (pathname)
+export const currentPath = writable('');

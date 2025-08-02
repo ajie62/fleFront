@@ -7,3 +7,10 @@ export interface Course {
 
 export type Status = 'all' | 'published' | 'unpublished';
 export type Level = 'all' | 'beginner' | 'intermediate' | 'advanced';
+
+export type JwtPayload = {
+  email: string;
+  roles: string[];
+  exp?: number;
+  iat?: number;
+};

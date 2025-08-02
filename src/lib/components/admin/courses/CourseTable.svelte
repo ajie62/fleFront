@@ -16,7 +16,7 @@
     </thead>
     <tbody>
       {#each courses as course (course.id)}
-        <tr class="border-b hover:bg-gray-50 transition">
+        <tr class="hover:bg-gray-50 transition">
           <td class="px-6 py-4 font-medium text-gray-900">{course.title}</td>
           <td class="px-6 py-4 capitalize">{course.level}</td>
           <td class="px-6 py-4">
@@ -26,9 +26,13 @@
               <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">Non publié</span>
             {/if}
           </td>
-          <td class="px-6 py-4 text-right space-x-2">
-            <a href={`/admin/courses/${course.id}`} class="text-blue-600 hover:underline text-sm">Voir</a>
-            <a href={`/admin/courses/${course.id}/edit`} class="text-indigo-600 hover:underline text-sm">Éditer</a>
+          <td class="px-6 py-4 text-right">
+            <a
+              href={`/admin/courses/${course.id}/edit`}
+              class="inline-block cursor-pointer px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700 transition"
+            >
+              Éditer
+            </a>
           </td>
         </tr>
       {/each}

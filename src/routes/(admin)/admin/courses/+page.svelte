@@ -29,7 +29,15 @@
 <section class="px-4 sm:px-6 py-8 bg-gray-100 min-h-screen">
   <div class="max-w-7xl mx-auto">
     <h1 class="text-4xl font-bold text-gray-800 mb-6">Admin Panel</h1>
-    <h2 class="text-2xl font-semibold text-gray-600 mb-6">Gestion des cours</h2>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h2 class="text-2xl font-semibold text-gray-600">Gestion des cours</h2>
+        <a
+            href="/admin/courses/create"
+            class="mt-4 sm:mt-0 inline-block bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700 transition cursor-pointer"
+        >
+            + Créer un cours
+        </a>
+    </div>
 
     <CourseFilters
       bind:selectedStatus

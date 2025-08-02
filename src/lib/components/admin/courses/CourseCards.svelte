@@ -17,9 +17,13 @@
           <span class="text-yellow-700">Non publié</span>
         {/if}
       </p>
-      <div class="mt-3 text-right space-x-2">
-        <a href={`/admin/courses/${course.id}`} class="text-blue-600 hover:underline text-sm">Voir</a>
-        <a href={`/admin/courses/${course.id}/edit`} class="text-indigo-600 hover:underline text-sm">Éditer</a>
+      <div class="mt-4 text-right">
+        <a
+          href={`/admin/courses/${course.id}/edit`}
+          class="inline-block cursor-pointer px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700 transition"
+        >
+          Éditer
+        </a>
       </div>
     </div>
   {/each}
