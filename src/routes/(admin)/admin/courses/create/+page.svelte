@@ -15,7 +15,8 @@
       const response = await fetch('http://localhost:8000/api/courses', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/ld+json'
+          'Content-Type': 'application/ld+json',
+          'Accept': 'application/ld+json'
           // PAS de Authorization ici — on s'appuie sur le cookie httpOnly
         },
         credentials: 'include', // essentiel pour que le cookie soit envoyé
