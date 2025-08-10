@@ -1,51 +1,76 @@
-import { redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { dev } from '$app/environment';
 
-export const load: PageServerLoad = async ({ cookies, url }) => {
-	// Si déjà loggué → on redirige vers /admin
-	if (cookies.get('jwt')) {
-		throw redirect(303, '/admin');
-	}
+const API_BASE = process.env.PUBLIC_API_BASE ?? 'http://localhost:8000';
+const COOKIE_NAME = 'jwt'; // Must match Symfony's cookie name if backend reads it
 
-	const error = url.searchParams.get('error') ?? '';
-	const email = url.searchParams.get('email') ?? '';
+// Sanitize "next" param to avoid open redirects
+function sanitizeNext(next: string | null | undefined): string | null {
+  if (!next) return null;
+  if (next.startsWith('http://') || next.startsWith('https://')) return null;
+  if (!next.startsWith('/')) return null;
+  if (next.startsWith('//')) return null;
+  return next;
+}
 
-	return { error, email };
+export const load: PageServerLoad = async ({ locals, url }) => {
+  // Redirect authenticated users away from /login
+  if (locals.user) {
+    const next = sanitizeNext(url.searchParams.get('next'));
+    if (locals.user.roles?.includes('ROLE_ADMIN')) {
+      throw redirect(303, next ?? '/admin');
+    }
+    throw redirect(303, next ?? '/');
+  }
+
+  // Allow rendering login form
+  const error = url.searchParams.get('error') ?? '';
+  const email = url.searchParams.get('email') ?? '';
+  return { error, email };
 };
 
 export const actions: Actions = {
-	default: async ({ request, fetch, cookies }) => {
-		const form = await request.formData();
-		const email = form.get('email');
-		const password = form.get('password');
+  default: async ({ request, cookies, url, fetch }) => {
+    const form = await request.formData();
+    const email = String(form.get('email') ?? '');
+    const password = String(form.get('password') ?? '');
 
-		if (typeof email !== 'string' || typeof password !== 'string') {
-			const q = new URLSearchParams({ error: 'Formulaire invalide', email: String(email) });
-			throw redirect(303, `/login?${q}`);
-		}
+    if (!email || !password) {
+      return fail(400, { message: 'Email and password are required.' });
+    }
 
-		const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/api/login`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ email, password }),
-		});
+    const resp = await fetch(`${API_BASE}/api/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password })
+    });
 
-		if (!res.ok) {
-			const q = new URLSearchParams({ error: 'Identifiants invalides', email });
-			throw redirect(303, `/login?${q}`);
-		}
+    if (!resp.ok) {
+      return fail(resp.status, { message: 'Invalid credentials.' });
+    }
 
-		const { token } = await res.json();
+    let data: unknown;
+    try {
+      data = await resp.json();
+    } catch {
+      // If API sets cookie directly, JSON parse may fail – that's fine
+    }
 
-		// Cookie sécurisé, côté serveur uniquement
-		cookies.set('jwt', token, {
-			path: '/',
-			httpOnly: true,
-			sameSite: 'lax',
-			secure: false,
-			maxAge: 60 * 60 * 24
-		});
+    const token = (data as { token?: string } | undefined)?.token;
+    if (token) {
+      cookies.set(COOKIE_NAME, token, {
+        httpOnly: true,
+        path: '/',
+        sameSite: 'lax',   // For same-site; use 'none' + secure: true for cross-site HTTPS
+        secure: !dev,
+        maxAge: 60 * 60 * 24 * 7
+      });
+    }
 
-		throw redirect(303, '/admin');
-	}
+    const next = sanitizeNext(url.searchParams.get('next')) ?? '/';
+    
+    throw redirect(303, next);
+  }
 };
